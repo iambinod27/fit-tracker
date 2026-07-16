@@ -23,8 +23,6 @@ router.post('/register', async (req, res) => {
             expiresIn: '7d',
         });
 
-        console.log('Inser result:', result.lastInsertRowid)
-
         res.status(201).json({ token });
     } catch (err) {
         next(err);
