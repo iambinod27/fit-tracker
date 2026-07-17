@@ -11,7 +11,7 @@ router.get('/', (req, res) => {
 
     const exerciseStmt = db.prepare('SELECT * FROM exercises WHERE workout_id = ?');
     const withExercises = workouts.map((w) => ({
-        ...w, exercise: exerciseStmt.all(w.id),
+        ...w, exercises: exerciseStmt.all(w.id),
     }))
 
     res.json(withExercises);
@@ -44,5 +44,16 @@ router.post('/', (req, res) => {
     const workoutId = tx();
     res.status(201).json({ id: workoutId });
 });
+
+
+router.delete("/:id", (req, res) => {
+    const result = db.prepare('DELETE FROM workouts WHERE id = ? AND user_id = ?').run(req.params.id, req.userId)
+
+    if (result.changes === 0) {
+        return res.status(404).json({ error: 'Workout not found' });
+    }
+
+    res.status(204).send();
+})
 
 export default router;

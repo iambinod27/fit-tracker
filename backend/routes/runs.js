@@ -7,7 +7,7 @@ router.use(requireAuth);
 
 
 router.get('/', (req, res) => {
-    const runs = db.prepare('SELECT * FROM runs WHERE user_id = ? ORDER BY date DESC').all(req.user.id);
+    const runs = db.prepare('SELECT * FROM runs WHERE user_id = ? ORDER BY date DESC').all(req.userId);
     res.json(runs)
 })
 
@@ -21,5 +21,15 @@ router.post('/', (req, res) => {
 
     res.status(201).json({ id: result.lastInsertRowid });
 });
+
+router.delete("/:id", (req, res) => {
+    const result = db.prepare('DELETE FROM runs WHERE id = ? AND user_id = ?').run(req.params.id, req.userId)
+
+    if (result.changes === 0) {
+        return res.status(404).json({ error: 'Run not found' });
+    }
+
+    res.status(204).send();
+})
 
 export default router;
