@@ -5,7 +5,7 @@ import db from '../db/index.js';
 
 const router = Router();
 
-router.post('/register', async (req, res) => {
+router.post('/register', async (req, res, next) => {
     try {
         const { email, password } = req.body;
 
@@ -29,7 +29,7 @@ router.post('/register', async (req, res) => {
     }
 })
 
-router.post('/login', async (req, res) => {
+router.post('/login', async (req, res, next) => {
     try {
         const { email, password } = req.body;
         const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
@@ -40,7 +40,7 @@ router.post('/login', async (req, res) => {
 
         const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
         res.json({ token })
-    } catch (error) {
+    } catch (err) {
         next(err);
     }
 })
