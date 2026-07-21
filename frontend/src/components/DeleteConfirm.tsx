@@ -10,7 +10,7 @@ interface Props {
 const DeleteConfirm = ({ onConfirm, itemLabel} : Props) => {
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild>
+      <AlertDialogTrigger>
         <Button variant={"ghost"} size={"icon"}>
           <Trash2 className="h-4 w-4 text-red-500" />
         </Button>

@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
-import { Trash2 } from "lucide-react";
 import EditProfileDialog from "@/components/EditProfileDialog";
 import DeleteConfirm from "@/components/DeleteConfirm";
 import CardSkeleton from "@/components/CardSkeleton";
