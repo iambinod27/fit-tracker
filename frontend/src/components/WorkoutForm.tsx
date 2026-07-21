@@ -29,7 +29,7 @@ const WorkoutForm = () => {
     register,
     control,
     handleSubmit,
-    formState: { errors, dirtyFields },
+    formState: { errors },
   } = useForm<WorkoutFormValues>({
     resolver: zodResolver(workoutSchema),
     mode: "onBlur",
