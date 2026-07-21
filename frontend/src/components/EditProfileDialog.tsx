@@ -13,6 +13,7 @@ import {
 import { Button } from "./ui/button";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
+import { toast } from "sonner";
 
 const profileSchema = z.object({
   first_name: z.string().min(1, "Required"),
@@ -49,6 +50,7 @@ const EditProfileDialog = ({ currentValues }: Props) => {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["me"] });
+      toast.success("Profile updated!");
     },
   });
 
@@ -57,10 +59,8 @@ const EditProfileDialog = ({ currentValues }: Props) => {
   }
 
   return (
-    <Dialog >
-      <DialogTrigger>
-          Edit Profile
-      </DialogTrigger>
+    <Dialog>
+      <DialogTrigger>Edit Profile</DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit Profile</DialogTitle>
@@ -93,7 +93,7 @@ const EditProfileDialog = ({ currentValues }: Props) => {
               <Input
                 id="weight_kg"
                 type="number"
-                {...(register("weight_kg", { valueAsNumber: true }))}
+                {...register("weight_kg", { valueAsNumber: true })}
               />
               {errors.weight_kg && (
                 <p className="text-sm text-red-500">
@@ -106,7 +106,7 @@ const EditProfileDialog = ({ currentValues }: Props) => {
               <Input
                 id="height_cm"
                 type="number"
-                {...(register("height_cm", { valueAsNumber: true }))}
+                {...register("height_cm", { valueAsNumber: true })}
               />
               {errors.height_cm && (
                 <p className="text-sm text-red-500">
@@ -119,7 +119,7 @@ const EditProfileDialog = ({ currentValues }: Props) => {
               <Input
                 id="age"
                 type="number"
-                {...(register("age", { valueAsNumber: true }))}
+                {...register("age", { valueAsNumber: true })}
               />
               {errors.age && (
                 <p className="text-sm text-red-500">{errors.age.message}</p>

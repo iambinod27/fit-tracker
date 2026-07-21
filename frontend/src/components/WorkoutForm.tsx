@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm, useFieldArray } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import z from "zod";
 
 const exerciseSchema = z.object({
@@ -57,8 +58,13 @@ const WorkoutForm = () => {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["workouts"] });
+      toast.success('Workout saved!')
       navigate("/dashboard");
     },
+
+    onError: () => {
+      toast.error('Failed to save workout')
+    }
   });
 
   function onSubmit(values: WorkoutFormValues) {

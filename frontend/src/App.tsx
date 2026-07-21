@@ -9,6 +9,7 @@ import Stats from "./pages/Stats";
 import Register from "./pages/Register";
 import Notfound from "./pages/Notfound";
 import ThemeInitializer from "./components/ThemeInitializer";
+import { Toaster } from "./components/ui/sonner";
 
 function AppLayout() {
   return (
@@ -23,6 +24,7 @@ function App() {
   return (
     <BrowserRouter>
       <ThemeInitializer />
+      <Toaster />
       <Routes>
         <Route element={<PublicRoute />}>
           <Route path="/login" element={<Login />} />

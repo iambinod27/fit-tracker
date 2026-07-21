@@ -6,6 +6,8 @@ import { Link } from "react-router-dom";
 import EditProfileDialog from "@/components/EditProfileDialog";
 import DeleteConfirm from "@/components/DeleteConfirm";
 import CardSkeleton from "@/components/CardSkeleton";
+import { toast } from "sonner";
+import ActivityHeatmap from "@/components/ActivityHeatmap";
 
 interface Exercise {
   id: number;
@@ -60,12 +62,18 @@ export default function Dashboard() {
   const deletWorkout = useMutation({
     mutationFn: (id: number) =>
       apiFetch(`/workouts/${id}`, { method: "DELETE" }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["workouts"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["workouts"] });
+      toast.success("Deleted Workout!");
+    },
   });
 
   const deleteRun = useMutation({
     mutationFn: (id: number) => apiFetch(`/runs/${id}`, { method: "DELETE" }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["runs"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["runs"] });
+      toast.success("Deleted Run!");
+    },
   });
 
   const { data: user } = useQuery<UserProfile>({
@@ -73,15 +81,25 @@ export default function Dashboard() {
     queryFn: () => apiFetch("/auth/me"),
   });
 
+  const { data: streakData } = useQuery<{ streak: number }>({
+    queryKey: ["streak"],
+    queryFn: () => apiFetch("/stats/streak"),
+  });
+
   return (
     <div className="p-8 max-w-2xl mx-auto">
       <div className="flex justify-between">
-        <div className="flex items-start justify-between flex-col gap-3">
+        <div className="flex items-start justify-between flex-col gap-3 mb-6">
           <div className="text-2xl font-bold">Dashboard</div>
           {user && (
             <div>
-              <p className="text-gray-500 capitalize">
-                Welcome, {user.first_name} 👋
+              <p className="text-gray-500 capitalize flex items-center gap-2">
+                Welcome, {user.first_name}
+                {streakData && streakData.streak > 0 && (
+                  <span className="text-sm text-orange-500 font-medium">
+                    🔥 {streakData.streak}
+                  </span>
+                )}
               </p>
               {(user.weight_kg || user.height_cm || user.age) && (
                 <p className="text-sm text-gray-400 mt-1">
@@ -111,6 +129,9 @@ export default function Dashboard() {
           <Button variant="outline">Log Entry</Button>
         </Link>
       </div>
+
+      <ActivityHeatmap />
+
       <h2 className="text-xl font-bold mt-4 mb-4">Workouts</h2>
       {isLoading && (
         <p className="space-y-4">

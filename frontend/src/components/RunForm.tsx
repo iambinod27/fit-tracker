@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Check } from "lucide-react";
+import { toast } from "sonner";
 
 const runSchema = z.object({
   date: z.string().min(1, "Date is required"),
@@ -46,7 +47,12 @@ const RunForm = () => {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["runs"] });
+      toast.success("Runs saved!");
       navigate("/dashboard");
+    },
+
+    onError: () => {
+      toast.error("Failed to save runs");
     },
   });
 
