@@ -4,7 +4,7 @@ import WorkoutForm from "@/components/WorkoutForm";
 
 const LogEntry = () => {
   return (
-    <div className="p-8 max-w-2xl mx-auto">
+    <div className=" p-8 max-w-2xl mx-auto">
       <Tabs defaultValue="workout">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="workout">Log Workout</TabsTrigger>

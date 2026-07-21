@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Trash2 } from "lucide-react";
 import EditProfileDialog from "@/components/EditProfileDialog";
+import DeleteConfirm from "@/components/DeleteConfirm";
+import CardSkeleton from "@/components/CardSkeleton";
 
 interface Exercise {
   id: number;
@@ -110,22 +112,24 @@ export default function Dashboard() {
           <Button variant="outline">Log Entry</Button>
         </Link>
       </div>
-      {isLoading && <p className="text-gray-500">Loading workouts...</p>}
+      <h2 className="text-xl font-bold mt-4 mb-4">Workouts</h2>
+      {isLoading && (
+        <p className="space-y-4">
+          <CardSkeleton />
+          <CardSkeleton />
+        </p>
+      )}
       {error && <p className="text-red-500">Failed to load workouts</p>}
 
-      <h2 className="text-xl font-bold mt-4 mb-4">Workouts</h2>
       <div className="space-y-4">
         {workouts?.map((w) => (
           <Card key={w.id}>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-base">{w.date}</CardTitle>
-              <Button
-                variant={"ghost"}
-                size={"icon"}
-                onClick={() => deletWorkout.mutate(w.id)}
-              >
-                <Trash2 className="h-4 w-4 text-red-500" />
-              </Button>
+              <DeleteConfirm
+                onConfirm={() => deletWorkout.mutate(w.id)}
+                itemLabel="workout"
+              />
             </CardHeader>
             <CardContent>
               {w.notes && (
@@ -143,22 +147,34 @@ export default function Dashboard() {
           </Card>
         ))}
       </div>
+
+      {workouts?.length === 0 && (
+        <div className="text-center py-8">
+          <p className="text-gray-500 mb-3">No workouts logged yet.</p>
+          <Link to={"/log"}>
+            <Button variant={"outline"}>Log your first workout</Button>
+          </Link>
+        </div>
+      )}
+
       <h2 className="text-xl font-bold mt-4 mb-4">Runs</h2>
 
-      {runsLoading && <p className="text-gray-500">Loading runs...</p>}
+      {runsLoading && (
+        <p className="space-y-4">
+          <CardSkeleton />
+          <CardSkeleton />
+        </p>
+      )}
 
       <div className="space-y-4">
         {runs?.map((r) => (
           <Card key={r.id}>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-base">{r.date}</CardTitle>
-              <Button
-                variant={"ghost"}
-                size={"icon"}
-                onClick={() => deleteRun.mutate(r.id)}
-              >
-                <Trash2 className="h-4 w-4 text-red-500" />
-              </Button>
+              <DeleteConfirm
+                onConfirm={() => deleteRun.mutate(r.id)}
+                itemLabel="workout"
+              />
             </CardHeader>
             <CardContent>
               <p className="text-sm">
@@ -172,11 +188,12 @@ export default function Dashboard() {
       </div>
 
       {runs?.length === 0 && (
-        <p className="text-gray-500">No runs logged yet.</p>
-      )}
-
-      {workouts?.length === 0 && (
-        <p className="text-gray-500">No workouts logged yet.</p>
+        <div className="text-center py-8">
+          <p className="text-gray-500 mb-3">No runs logged yet.</p>
+          <Link to={"/log"}>
+            <Button variant={"outline"}>Log your first run</Button>
+          </Link>
+        </div>
       )}
     </div>
   );

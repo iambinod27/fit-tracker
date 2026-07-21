@@ -1,6 +1,8 @@
 import { useAuthStore } from "@/store/authStore";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "./ui/button";
+import { useThemeStore } from "@/store/themeStore";
+import { Moon, Sun } from "lucide-react";
 
 const navItem = [
   { to: "/dashboard", label: "Dashboard" },
@@ -11,6 +13,9 @@ const navItem = [
 const Header = () => {
   const logout = useAuthStore((state) => state.logout);
   const location = useLocation();
+
+  const theme = useThemeStore((state) => state.theme);
+  const toggleTheme = useThemeStore((state) => state.toggleTheme);
 
   return (
     <header className="border-b bg-background">
@@ -28,9 +33,19 @@ const Header = () => {
           ))}
         </nav>
 
-        <Button onClick={logout} variant={"outline"} size={"sm"}>
-          Log out
-        </Button>
+        <div className="flex items-center gap-2" >
+          <Button onClick={toggleTheme} variant={"ghost"} size={"icon"} className="cursor-pointer">
+            {theme == "dark" ? (
+              <Sun className="w-4 h-4" />
+            ) : (
+              <Moon className="h-4 w-4" />
+            )}
+          </Button>
+          <Button onClick={logout} variant={"outline"} size={"sm"}>
+            Log out
+          </Button>
+
+        </div>
       </div>
     </header>
   );

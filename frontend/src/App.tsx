@@ -13,6 +13,8 @@ import LogEntry from "./pages/LogEntry";
 import Header from "./components/Header";
 import Stats from "./pages/Stats";
 import Register from "./pages/Register";
+import Notfound from "./pages/Notfound";
+import ThemeInitializer from "./components/ThemeInitializer";
 
 function AppLayout() {
   return (
@@ -26,6 +28,7 @@ function AppLayout() {
 function App() {
   return (
     <BrowserRouter>
+      <ThemeInitializer />
       <Routes>
         <Route element={<PublicRoute />}>
           <Route path="/login" element={<Login />} />
@@ -40,7 +43,7 @@ function App() {
           </Route>
         </Route>
 
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        <Route path="*" element={<Notfound />} />
       </Routes>
     </BrowserRouter>
   );

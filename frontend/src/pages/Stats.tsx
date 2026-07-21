@@ -1,3 +1,4 @@
+import CardSkeleton from "@/components/CardSkeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, type ChartConfig } from "@/components/ui/chart";
 import { apiFetch } from "@/lib/api";
@@ -45,13 +46,18 @@ const Stats = () => {
           <CardTitle>Personal Records</CardTitle>
         </CardHeader>
         <CardContent>
-          {isLoading && <p className="text-gray-500">Loading...</p>}
+          {isLoading && (
+            <p className="space-y-4">
+              <CardSkeleton />
+              <CardSkeleton />
+            </p>
+          )}
           <ul className="space-y-2">
             {prs?.map((pr) => (
               <li
                 key={pr.name}
                 onClick={() => setSelectedExercise(pr.name)}
-                className="flex-justify-between border-b pb-2 cursor-pointer hover:bg-accent px-2 rounded"
+                className="flex-justify-between border-b pt-2 pb-2 cursor-pointer hover:bg-accent px-2 rounded"
               >
                 <span className="capitalize">{pr.name}</span>
                 <span className="font-bold"> {pr.max_weight} kg</span>

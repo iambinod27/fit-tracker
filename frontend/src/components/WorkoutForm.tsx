@@ -66,7 +66,7 @@ const WorkoutForm = () => {
   }
 
   return (
-    <div className="p-8 max-w-2xl mx-auto">
+    <div className="py-8 p-0 md:p-8 max-w-2xl mx-auto">
       <Card>
         <CardHeader>
           <CardTitle>Log Workout</CardTitle>
