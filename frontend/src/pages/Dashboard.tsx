@@ -75,7 +75,7 @@ export default function Dashboard() {
   return (
     <div className="p-8 max-w-2xl mx-auto">
       <div className="flex justify-between">
-        <div className="flex items-start justify-between mb-6 flex-col gap-3">
+        <div className="flex items-start justify-between flex-col gap-3">
           <div className="text-2xl font-bold">Dashboard</div>
           {user && (
             <div>
