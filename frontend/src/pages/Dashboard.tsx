@@ -80,7 +80,7 @@ export default function Dashboard() {
           {user && (
             <div>
               <p className="text-gray-500 capitalize">
-                Welcome back, {user.first_name} 👋
+                Welcome, {user.first_name} 👋
               </p>
               {(user.weight_kg || user.height_cm || user.age) && (
                 <p className="text-sm text-gray-400 mt-1">
