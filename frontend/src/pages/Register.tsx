@@ -12,6 +12,8 @@ import { Link, useNavigate } from "react-router-dom";
 import z from "zod";
 
 const registerSchema = z.object({
+  first_name: z.string().min(1, "First name is required"),
+  last_name: z.string().min(1, "Last name is required"),
   email: z.email("Enter a valid email"),
   password: z
     .string()
@@ -35,7 +37,7 @@ const Register = () => {
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     mode: "onBlur",
-    defaultValues: { email: "", password: "" },
+    defaultValues: { first_name: "", last_name: "", email: "", password: "" },
   });
 
   async function onSubmit(values: RegisterFormValues) {
@@ -62,6 +64,39 @@ const Register = () => {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="flex gap-3">
+              <div className="space-y-2 flex-1">
+                <Label htmlFor="first_name">First name</Label>
+                <div className="relative">
+                  <Input id="first_name" {...register("first_name")} />
+                  {dirtyFields.first_name && !errors.first_name && (
+                    <Check className="absolute right-3 top-1/2 -tranlsate-y-1/2 h-4 w-4 text-green-500" />
+                  )}
+                </div>
+                {errors.first_name && (
+                  <p className="text-sm text-red-500">
+                    {errors.first_name.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2 flex-1">
+                <Label htmlFor="last_name">Last name</Label>
+                <div className="relative">
+                  <Input id="last_name" {...register("last_name")} />
+
+                  {dirtyFields.last_name && !errors.last_name && (
+                    <Check className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-green-500" />
+                  )}
+                </div>
+                {errors.last_name && (
+                  <p className="text-sm text-red-500">
+                    {errors.last_name.message}
+                  </p>
+                )}
+              </div>
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <div className="relative">

@@ -2,12 +2,14 @@ import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import db from '../db/index.js';
+import { requireAuth } from '../middleware/auth.js'
+
 
 const router = Router();
 
 router.post('/register', async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, first_name, last_name } = req.body;
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password required' });
     }
@@ -22,8 +24,8 @@ router.post('/register', async (req, res, next) => {
 
     const hash = await bcrypt.hash(password, 10);
     const result = await db.execute({
-      sql: 'INSERT INTO users (email, password_hash) VALUES (?, ?)',
-      args: [email, hash],
+      sql: 'INSERT INTO users (email, password_hash, first_name, last_name) VALUES (?, ?, ?, ?)',
+      args: [email, hash, first_name || null, last_name || null],
     });
 
     const token = jwt.sign({ userId: Number(result.lastInsertRowid) }, process.env.JWT_SECRET, {
@@ -57,4 +59,53 @@ router.post('/login', async (req, res, next) => {
   }
 });
 
+router.get('/me', requireAuth, async (req, res, next) => {
+  try {
+
+    const result = await db.execute({
+      sql: 'SELECT id, email, first_name, last_name, weight_kg, height_cm, age FROM users WHERE id = ?',
+      args: [req.userId]
+    })
+
+    const user = result.rows[0];
+
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    res.json(user);
+
+  } catch (error) {
+    next(error)
+  }
+})
+
+router.patch('/me', requireAuth, async (req, res, next) => {
+  try {
+    const { first_name, last_name, weight_kg, height_cm, age } = req.body
+
+    await db.execute({
+      sql: `UPDATE users
+          SET first_name = ?, last_name = ?, weight_kg = ?, height_cm = ?, age = ?
+          WHERE id = ?`,
+      args: [
+        first_name ?? null,
+        last_name ?? null,
+        weight_kg ?? null,
+        height_cm ?? null,
+        age ?? null,
+        req.userId
+      ]
+    })
+
+    const result = await db.execute({
+      sql: 'SELECT id, email, first_name, last_name, weight_kg, height_cm, age FROM users WHERE id = ?',
+      args: [req.userId]
+    })
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    next(error)
+  }
+})
+
 export default router;
+

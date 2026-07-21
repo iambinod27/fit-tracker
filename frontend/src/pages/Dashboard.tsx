@@ -4,6 +4,7 @@ import { apiFetch } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Trash2 } from "lucide-react";
+import EditProfileDialog from "@/components/EditProfileDialog";
 
 interface Exercise {
   id: number;
@@ -26,6 +27,16 @@ interface Run {
   distance_km: number;
   duration_min: number;
   notes: string | null;
+}
+
+interface UserProfile {
+  id: number;
+  email: string;
+  first_name: string | null;
+  last_name: string | null;
+  weight_kg: number | null;
+  height_cm: number | null;
+  age: number | null;
 }
 
 export default function Dashboard() {
@@ -56,19 +67,53 @@ export default function Dashboard() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["runs"] }),
   });
 
+  const { data: user } = useQuery<UserProfile>({
+    queryKey: ["me"],
+    queryFn: () => apiFetch("/auth/me"),
+  });
+
   return (
     <div className="p-8 max-w-2xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <div className="text-2xl font-bold">Dashboard</div>
-        <p className="text-gray-500">Welcome back - logged in!</p>
-      </div>
+      <div className="flex justify-between">
+        <div className="flex items-start justify-between mb-6 flex-col gap-3">
+          <div className="text-2xl font-bold">Dashboard</div>
+          {user && (
+            <div>
+              <p className="text-gray-500 capitalize">
+                Welcome back, {user.first_name} 👋
+              </p>
+              {(user.weight_kg || user.height_cm || user.age) && (
+                <p className="text-sm text-gray-400 mt-1">
+                  {user.age && `${user.age} yrs`}
+                  {user.age && (user.weight_kg || user.height_cm) && " . "}
+                  {user.weight_kg && `${user.weight_kg} kg`}
+                  {user.weight_kg && user.height_cm && " . "}
+                  {user.height_cm && `${user.height_cm} cm`}
+                </p>
+              )}
+              <div className="mt-3">
+                <EditProfileDialog
+                  currentValues={{
+                    first_name: user.first_name ?? "",
+                    last_name: user.last_name ?? "",
+                    weight_kg: user.weight_kg ?? undefined,
+                    height_cm: user.height_cm ?? undefined,
+                    age: user.age ?? undefined,
+                  }}
+                />
+              </div>
+            </div>
+          )}
+        </div>
 
-      <Link to="/log">
-        <Button variant="outline">Log Entry</Button>
-      </Link>
+        <Link to="/log">
+          <Button variant="outline">Log Entry</Button>
+        </Link>
+      </div>
       {isLoading && <p className="text-gray-500">Loading workouts...</p>}
       {error && <p className="text-red-500">Failed to load workouts</p>}
 
+      <h2 className="text-xl font-bold mt-4 mb-4">Workouts</h2>
       <div className="space-y-4">
         {workouts?.map((w) => (
           <Card key={w.id}>
@@ -98,7 +143,7 @@ export default function Dashboard() {
           </Card>
         ))}
       </div>
-      <h2 className="text-xl font-bold mt-8 mb-4">Runs</h2>
+      <h2 className="text-xl font-bold mt-4 mb-4">Runs</h2>
 
       {runsLoading && <p className="text-gray-500">Loading runs...</p>}
 
