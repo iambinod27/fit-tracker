@@ -8,6 +8,7 @@ import DeleteConfirm from "@/components/DeleteConfirm";
 import CardSkeleton from "@/components/CardSkeleton";
 import { toast } from "sonner";
 import ActivityHeatmap from "@/components/ActivityHeatmap";
+import { Dumbbell, Footprints, Plus } from "lucide-react";
 
 interface Exercise {
   id: number;
@@ -45,11 +46,7 @@ interface UserProfile {
 export default function Dashboard() {
   const queryClient = useQueryClient();
 
-  const {
-    data: workouts,
-    isLoading,
-    error,
-  } = useQuery<Workout[]>({
+  const { data: workouts, isLoading, error } = useQuery<Workout[]>({
     queryKey: ["workouts"],
     queryFn: () => apiFetch("/workouts"),
   });
@@ -60,8 +57,7 @@ export default function Dashboard() {
   });
 
   const deletWorkout = useMutation({
-    mutationFn: (id: number) =>
-      apiFetch(`/workouts/${id}`, { method: "DELETE" }),
+    mutationFn: (id: number) => apiFetch(`/workouts/${id}`, { method: "DELETE" }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["workouts"] });
       toast.success("Deleted Workout!");
@@ -87,134 +83,144 @@ export default function Dashboard() {
   });
 
   return (
-    <div className="p-8 max-w-2xl mx-auto">
-      <div className="flex justify-between">
-        <div className="flex items-start justify-between flex-col gap-3 mb-6">
-          <div className="text-2xl font-bold">Dashboard</div>
-          {user && (
+    <div className="p-6 md:p-8 max-w-5xl mx-auto space-y-6">
+      {/* Profile / welcome card */}
+      {user && (
+        <Card>
+          <CardContent className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pt-6">
             <div>
-              <p className="text-gray-500 capitalize flex items-center gap-2">
+              <p className="text-2xl font-bold capitalize flex items-center gap-2">
                 Welcome, {user.first_name}
                 {streakData && streakData.streak > 0 && (
-                  <span className="text-sm text-orange-500 font-medium">
-                    🔥 {streakData.streak}
+                  <span className="text-sm font-medium text-orange-500 bg-orange-500/10 px-2 py-0.5 rounded-full">
+                    🔥 {streakData.streak} day streak
                   </span>
                 )}
               </p>
               {(user.weight_kg || user.height_cm || user.age) && (
-                <p className="text-sm text-gray-400 mt-1">
-                  {user.age && `${user.age} yrs`}
-                  {user.age && (user.weight_kg || user.height_cm) && " . "}
-                  {user.weight_kg && `${user.weight_kg} kg`}
-                  {user.weight_kg && user.height_cm && " . "}
-                  {user.height_cm && `${user.height_cm} cm`}
+                <p className="text-sm text-muted-foreground mt-1">
+                  {[
+                    user.age && `${user.age} yrs`,
+                    user.weight_kg && `${user.weight_kg} kg`,
+                    user.height_cm && `${user.height_cm} cm`,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
                 </p>
               )}
-              <div className="mt-3">
-                <EditProfileDialog
-                  currentValues={{
-                    first_name: user.first_name ?? "",
-                    last_name: user.last_name ?? "",
-                    weight_kg: user.weight_kg ?? undefined,
-                    height_cm: user.height_cm ?? undefined,
-                    age: user.age ?? undefined,
-                  }}
-                />
-              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <EditProfileDialog
+                currentValues={{
+                  first_name: user.first_name ?? "",
+                  last_name: user.last_name ?? "",
+                  weight_kg: user.weight_kg ?? undefined,
+                  height_cm: user.height_cm ?? undefined,
+                  age: user.age ?? undefined,
+                }}
+              />
+              <Link to="/log">
+                <Button>
+                  <Plus className="h-4 w-4 mr-1" />
+                  Log Entry
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Activity heatmap */}
+      <ActivityHeatmap />
+
+      {/* Workouts + Runs side by side */}
+      <div className="grid md:grid-cols-2 gap-6">
+        <div>
+          <h2 className="text-lg font-bold mb-3 flex items-center gap-2">
+            <Dumbbell className="h-5 w-5 text-primary" />
+            Workouts
+          </h2>
+
+          {isLoading && (
+            <div className="space-y-3">
+              <CardSkeleton />
+              <CardSkeleton />
+            </div>
+          )}
+          {error && <p className="text-red-500 text-sm">Failed to load workouts</p>}
+
+          <div className="space-y-3">
+            {workouts?.map((w) => (
+              <Card key={w.id} className="border-l-4 border-l-primary">
+                <CardHeader className="flex flex-row items-center justify-between py-3">
+                  <CardTitle className="text-sm font-medium">{w.date}</CardTitle>
+                  <DeleteConfirm onConfirm={() => deletWorkout.mutate(w.id)} itemLabel="workout" />
+                </CardHeader>
+                <CardContent className="pt-0">
+                  {w.notes && <p className="text-xs text-muted-foreground mb-2">{w.notes}</p>}
+                  <ul className="space-y-1">
+                    {w.exercises?.map((ex) => (
+                      <li key={ex.id} className="text-sm">
+                        {ex.name}: {ex.sets}×{ex.reps} @ {ex.weight}kg
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {workouts?.length === 0 && (
+            <div className="text-center py-8 border border-dashed rounded-lg">
+              <p className="text-sm text-muted-foreground mb-3">No workouts logged yet.</p>
+              <Link to="/log">
+                <Button variant="outline" size="sm">Log your first workout</Button>
+              </Link>
             </div>
           )}
         </div>
 
-        <Link to="/log">
-          <Button variant="outline">Log Entry</Button>
-        </Link>
-      </div>
+        <div>
+          <h2 className="text-lg font-bold mb-3 flex items-center gap-2">
+            <Footprints className="h-5 w-5 text-orange-500" />
+            Runs
+          </h2>
 
-      <ActivityHeatmap />
+          {runsLoading && (
+            <div className="space-y-3">
+              <CardSkeleton />
+              <CardSkeleton />
+            </div>
+          )}
 
-      <h2 className="text-xl font-bold mt-4 mb-4">Workouts</h2>
-      {isLoading && (
-        <p className="space-y-4">
-          <CardSkeleton />
-          <CardSkeleton />
-        </p>
-      )}
-      {error && <p className="text-red-500">Failed to load workouts</p>}
+          <div className="space-y-3">
+            {runs?.map((r) => (
+              <Card key={r.id} className="border-l-4 border-l-orange-500">
+                <CardHeader className="flex flex-row items-center justify-between py-3">
+                  <CardTitle className="text-sm font-medium">{r.date}</CardTitle>
+                  <DeleteConfirm onConfirm={() => deleteRun.mutate(r.id)} itemLabel="run" />
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <p className="text-sm">
+                    {r.distance_km} km in {r.duration_min} min
+                    {" "}({(r.duration_min / r.distance_km).toFixed(2)} min/km)
+                  </p>
+                  {r.notes && <p className="text-xs text-muted-foreground mt-1">{r.notes}</p>}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
 
-      <div className="space-y-4">
-        {workouts?.map((w) => (
-          <Card key={w.id}>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-base">{w.date}</CardTitle>
-              <DeleteConfirm
-                onConfirm={() => deletWorkout.mutate(w.id)}
-                itemLabel="workout"
-              />
-            </CardHeader>
-            <CardContent>
-              {w.notes && (
-                <p className="text-sm text-gray-500 mb2">{w.notes}</p>
-              )}
-
-              <ul className="space-y-1">
-                {w.exercises?.map((ex) => (
-                  <li key={ex.id} className="text-sm">
-                    {ex.name}: {ex.sets}*{ex.reps} @ {ex.weight}kg
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {workouts?.length === 0 && (
-        <div className="text-center py-8">
-          <p className="text-gray-500 mb-3">No workouts logged yet.</p>
-          <Link to={"/log"}>
-            <Button variant={"outline"}>Log your first workout</Button>
-          </Link>
+          {runs?.length === 0 && (
+            <div className="text-center py-8 border border-dashed rounded-lg">
+              <p className="text-sm text-muted-foreground mb-3">No runs logged yet.</p>
+              <Link to="/log">
+                <Button variant="outline" size="sm">Log your first run</Button>
+              </Link>
+            </div>
+          )}
         </div>
-      )}
-
-      <h2 className="text-xl font-bold mt-4 mb-4">Runs</h2>
-
-      {runsLoading && (
-        <p className="space-y-4">
-          <CardSkeleton />
-          <CardSkeleton />
-        </p>
-      )}
-
-      <div className="space-y-4">
-        {runs?.map((r) => (
-          <Card key={r.id}>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-base">{r.date}</CardTitle>
-              <DeleteConfirm
-                onConfirm={() => deleteRun.mutate(r.id)}
-                itemLabel="workout"
-              />
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm">
-                {r.distance_km} km in {r.duration_min} min
-                {""}({(r.duration_min / r.distance_km).toFixed(2)} min/km)
-              </p>
-              {r.notes && <p className="text-sm text-gray-500">{r.notes}</p>}
-            </CardContent>
-          </Card>
-        ))}
       </div>
-
-      {runs?.length === 0 && (
-        <div className="text-center py-8">
-          <p className="text-gray-500 mb-3">No runs logged yet.</p>
-          <Link to={"/log"}>
-            <Button variant={"outline"}>Log your first run</Button>
-          </Link>
-        </div>
-      )}
     </div>
   );
 }

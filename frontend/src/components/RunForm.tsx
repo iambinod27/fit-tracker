@@ -72,13 +72,13 @@ const RunForm = () => {
               <Label htmlFor="date">Date</Label>
               <div className="relative">
                 <Input id="date" type="date" {...register("date")} />
-                {errors.date && (
-                  <p className="text-sm text-red-500">{errors.date?.message}</p>
-                )}
                 {dirtyFields.date && !errors.date && (
-                  <Check className="absolute right-9 top-1/2 -translate-y-1/2 h-4 w-4 text-green-500" />
+                  <Check className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-green-500" />
                 )}
               </div>
+              {errors.date && (
+                <p className="text-sm text-red-500">{errors.date?.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">

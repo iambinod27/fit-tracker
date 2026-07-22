@@ -1,4 +1,10 @@
-import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter,
+  Navigate,
+  Outlet,
+  Route,
+  Routes,
+} from "react-router-dom";
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
@@ -10,12 +16,18 @@ import Register from "./pages/Register";
 import Notfound from "./pages/Notfound";
 import ThemeInitializer from "./components/ThemeInitializer";
 import { Toaster } from "./components/ui/sonner";
+import Footer from "./components/Footer";
 
 function AppLayout() {
   return (
     <>
-      <Header />
-      <Outlet />
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-1">
+          <Outlet />
+        </main>
+        <Footer />
+      </div>
     </>
   );
 }
@@ -39,6 +51,7 @@ function App() {
           </Route>
         </Route>
 
+        <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="*" element={<Notfound />} />
       </Routes>
     </BrowserRouter>

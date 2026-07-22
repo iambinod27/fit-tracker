@@ -2,12 +2,12 @@ import { useAuthStore } from "@/store/authStore";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "./ui/button";
 import { useThemeStore } from "@/store/themeStore";
-import { Moon, Sun } from "lucide-react";
+import { ChartColumn, LayoutDashboard, Moon, Plus, Sun } from "lucide-react";
 
 const navItem = [
-  { to: "/dashboard", label: "Dashboard" },
-  { to: "/log", label: "Log Entry" },
-  { to: "/stats", label: "Stats" },
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/log", label: "Log Entry", icon: Plus },
+  { to: "/stats", label: "Stats", icon: ChartColumn },
 ];
 
 const Header = () => {
@@ -19,22 +19,32 @@ const Header = () => {
 
   return (
     <header className="border-b bg-background">
-      <div className="max-w-2xl mx-auto px-8 py-4 flex items-center justify-between">
+      <div className="max-w-5xl mx-auto px-8 py-4 flex items-center justify-between">
         <nav className="flex gap-1">
-          {navItem.map((item) => (
-            <Link key={item.to} to={item.to}>
-              <Button
-                variant={location.pathname === item.to ? "default" : "ghost"}
-                size={"sm"}
-              >
-                {item.label}
-              </Button>
-            </Link>
-          ))}
+          {navItem.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link key={item.to} to={item.to}>
+                <Button
+                  variant={location.pathname === item.to ? "default" : "ghost"}
+                  size="sm"
+                  className="flex items-center gap-1.5"
+                >
+                  <Icon className="h-4 w-4" />
+                  <span className="hidden sm:inline">{item.label}</span>
+                </Button>
+              </Link>
+            );
+          })}
         </nav>
 
-        <div className="flex items-center gap-2" >
-          <Button onClick={toggleTheme} variant={"ghost"} size={"icon"} className="cursor-pointer">
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={toggleTheme}
+            variant={"ghost"}
+            size={"icon"}
+            className="cursor-pointer"
+          >
             {theme == "dark" ? (
               <Sun className="w-4 h-4" />
             ) : (
@@ -44,7 +54,6 @@ const Header = () => {
           <Button onClick={logout} variant={"outline"} size={"sm"}>
             Log out
           </Button>
-
         </div>
       </div>
     </header>
